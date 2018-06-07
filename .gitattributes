@@ -3,3 +3,4 @@
 
 # Need these as I'm coding on Windows and compile(and run) on Linux, well WSL to be exact
 * text eol=lf
+build.bat text eol=crlf
