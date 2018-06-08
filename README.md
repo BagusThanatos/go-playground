@@ -14,6 +14,7 @@ Each folder will represent different 'plays' and need to be build separately. Th
 ## Before Building and Running
 Please make sure you have Go installed in your machine.
 If you don't, you can check https://golang.org/doc/install.
+After installing go, please also run setup.bat as it will install necessary library required to build the project.
 
 ## Building and Running
 I don't use make or any other things.
