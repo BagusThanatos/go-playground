@@ -1,11 +1,12 @@
+
 package main
 
 import (
 	"fmt"
 	"runtime"
-	//"log"
+	"log"
 
-	//"github.com/go-gl/gl/v4.6-core/gl"
+	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	
 )
@@ -22,8 +23,9 @@ func main() {
 	window := initGlfw()
 	defer glfw.Terminate()
 
+	program := initOpenGL()
 	for !window.ShouldClose() {
-		
+		draw(window, program)
 	}
 }
 
@@ -45,4 +47,24 @@ func initGlfw() *glfw.Window {
 	window.MakeContextCurrent()
 	
 	return window
+}
+
+func initOpenGL() uint32 {
+	if err := gl.Init(); err != nil {
+		panic(err)
+	}
+	version := gl.GoStr(gl.GetString(gl.VERSION))
+	log.Println("OpenGL Version", version)
+	
+	prog := gl.CreateProgram()
+	gl.LinkProgram(prog)
+	return prog
+}
+
+func draw(window *glfw.Window, program uint32) {
+	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+	gl.UseProgram(program)
+
+	glfw.PollEvents()
+	window.SwapBuffers()
 }
