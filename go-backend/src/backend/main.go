@@ -9,7 +9,7 @@ import (
 )
 
 type Data struct {
-	Title string
+	Title string `json:"title"`
 }
 
 func Hello(w http.ResponseWriter, r *http.Request) {
