@@ -18,6 +18,11 @@ type RequestBody struct {
 }
 
 func HelloName(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	// Parse body
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()	
@@ -32,7 +37,6 @@ func HelloName(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	fmt.Println(requestBody.UserID)
 	if len(requestBody.UserID) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -59,7 +63,6 @@ func Hello(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	fmt.Println(data.Title)
 	w.Header().Set("Content-Type","application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(payload)
