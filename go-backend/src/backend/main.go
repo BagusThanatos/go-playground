@@ -17,6 +17,8 @@ type RequestBody struct {
 	UserID string `json:"userid"`
 }
 
+func Ping(w http.ResponseWriter, r *http.Request) {}
+
 func HelloName(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -71,6 +73,8 @@ func Hello(w http.ResponseWriter, r *http.Request) {
 func main() {
 	flag.Parse()
 	args := flag.Args()
+	http.HandleFunc("/ping", Ping)
+	http.HandleFunc("/ping.html", Ping)
 	http.HandleFunc("/hello", Hello)
 	http.HandleFunc("/helloname", HelloName)
 	port := "8080"
