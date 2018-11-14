@@ -1,6 +1,7 @@
 #PlEASE HAVE GO INSTALLED BEFOREHAND
-set GOPATH=./
-set GOBIN=./build/
+# set GOPATH=./
+# set GOBIN=./build/
+
 echo "RUN TEST"
 go test ./test/backend/... -v
 
