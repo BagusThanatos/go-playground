@@ -35,10 +35,26 @@ const (
   Array
   Nil
   
- Str = SimpleStr | BulkStr
- Err = IOErr | AppErr
+  Str = SimpleStr | BulkStr
+  Err = IOErr | AppErr
 )
 
 var (
-  
+  simpleStrPrefix = []byte('+')
+  errPrefix = []byte('-')
+  intPrefix = []byte(':')
+  bulkStrPrefix = []byte('$')
+  arrayPrefix = []byte('*')
+  nilFormatted = []byte("$-1\r\n")
 )
+
+var (
+  errBadType = errors.New("wrong type")
+  errParse = errors.New("parse error")
+  errNotStr = erros.New("could not convert to string")
+  errNotInt = errors.New("could not convert to int")
+  errNotArray = errors.New("could not convert to array")
+  
+  ErrRespNil = errors.New("response is nil")
+)
+
