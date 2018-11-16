@@ -58,3 +58,64 @@ var (
   ErrRespNil = errors.New("response is nil")
 )
 
+type Resp struct {
+	type RespType
+	val interface{} // I need more context (????)
+
+
+	Err error
+}
+
+func NewResp(v interface{}) *Resp { //This too, need more context
+  r := format(v, false) 
+  return &r
+}
+
+func NewRespSimple(s string) *Resp {
+  return nil //See implementation on the mentioned repo
+}
+
+func NewRespFlattenedString(v interface{}) *Resp {
+  return nil //See implementation on the mentioned repo
+}
+
+func NewRespIOErr(err error) *Resp {
+  return nil //See implementation on the mentioned repo
+}
+
+type RespReader struct {
+  r *bufio.Reader
+}
+
+func NewRespReader (r io.Reader) *RespReadser {
+  return nil //See implementation on the mentioned repo
+}
+
+func (rr *RespReader) Read() *Resp {
+  res, err := bufioReadResp(rr.r)
+  if err != nil {
+    res = Resp{type: IOErr, val: err, Err : err}
+  }
+  return &res
+}
+
+func bufioReadResp(r *bufio.Reader) (Resp, error) {
+  b, err := r.Peek(1)
+  if err != nil {
+    return Resp{}, err // Should look later why returning empty response when an error does happen
+  }
+  switch b[0] {
+  case simpleStrPrefix[0]:
+    return readSimpleStr(r)
+  case errPrefix[0]:
+    return readError(r)
+  case intPrefix[0]:
+    return readInt(r)
+  case bulkStrPrefix[0]:
+    return readBulkStr(r)
+  case arrayPrefix[0]:
+    return readArray(r)
+  default:
+    return Resp{}, errBadType
+  }
+}
