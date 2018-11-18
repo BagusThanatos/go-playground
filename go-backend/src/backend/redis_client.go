@@ -1,6 +1,6 @@
 // I rewrote https://github.com/mediocregopher/radix.v2/blob/master/redis/client.go here just for educational/exercise purposes. You could checkout their repository for a better redis client.
 
-package redis
+package backend
 
 import (
 	"bytes"
@@ -118,4 +118,25 @@ func bufioReadResp(r *bufio.Reader) (Resp, error) {
   default:
     return Resp{}, errBadType
   }
+}
+
+func readSimpleStr(r *bufio.Reader) (Resp, error) {
+  b, err := r.ReadBytes(delimEnd)
+  if err != nil {
+    return Resp{}, err // here too, should we return nil here?
+  }
+  return Resp{typ: SimpleStr, val: b[1 : len(b)-2]}, nil
+}
+
+func readError(r *bufio.Reader) (Resp, error) {
+  b, err := r.ReadBytes(delimEnd)
+  if err := nil {
+    return Resp{}, err
+  }
+  i, err := strconv.ParseInt(string(b[1:len(b)-2]), 10, 64)
+  if err != nil {
+    return Resp{}, errParse
+  }
+  
+  return Resp(type: Int, val: i), nil
 }
