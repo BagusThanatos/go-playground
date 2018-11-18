@@ -62,7 +62,6 @@ type Resp struct {
 	type RespType
 	val interface{} // I need more context (????)
 
-
 	Err error
 }
 
@@ -130,7 +129,7 @@ func readSimpleStr(r *bufio.Reader) (Resp, error) {
 
 func readError(r *bufio.Reader) (Resp, error) {
   b, err := r.ReadBytes(delimEnd)
-  if err := nil {
+  if err != nil {
     return Resp{}, err
   }
   i, err := strconv.ParseInt(string(b[1:len(b)-2]), 10, 64)
@@ -138,5 +137,5 @@ func readError(r *bufio.Reader) (Resp, error) {
     return Resp{}, errParse
   }
   
-  return Resp(type: Int, val: i), nil
+  return Resp{type: Int, val: i}, nil
 }
