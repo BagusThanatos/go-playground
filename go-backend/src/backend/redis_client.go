@@ -132,6 +132,17 @@ func readError(r *bufio.Reader) (Resp, error) {
   if err != nil {
     return Resp{}, err
   }
+  err = errors.New(string(b[1 : len(b)-2])
+  
+  return Resp{type: AppErr, val: err, Err: err}, nil
+}
+
+func readInt(r *bufio.Reader) (Resp, error) {
+  b, err := r.ReadBytes(delimEnd)
+  if err != nil {
+    return Resp{}, nil
+  }
+  
   i, err := strconv.ParseInt(string(b[1:len(b)-2]), 10, 64)
   if err != nil {
     return Resp{}, errParse
@@ -140,11 +151,13 @@ func readError(r *bufio.Reader) (Resp, error) {
   return Resp{typ: Int, val: i}, nil
 }
 
-func readInt(r *bufio.Reader) (Resp, error) {
-  return Resp{}, nil
-}
-
 func readArray(r *bufio.Reader) (Resp, error) {
+  b, err := r.ReadBytes(delimEnd)
+  if err != nil {
+    return Resp{}, nil
+  }
+  
+  
   return Resp{}, nil
 }
 
