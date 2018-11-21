@@ -132,9 +132,9 @@ func readError(r *bufio.Reader) (Resp, error) {
   if err != nil {
     return Resp{}, err
   }
-  err = errors.New(string(b[1 : len(b)-2])
+  err = errors.New(string(b[1 : len(b)-2]))
   
-  return Resp{type: AppErr, val: err, Err: err}, nil
+  return Resp{typ: AppErr, val: err, Err: err}, nil
 }
 
 func readInt(r *bufio.Reader) (Resp, error) {
