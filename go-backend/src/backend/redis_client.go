@@ -173,7 +173,7 @@ func readBulkStr(r *bufio.Reader) (Resp, error) {
     if err != nil {
       return Resp{}, err
     }
-    b2 = b2[n:] // this looks like pointer arithmetic?
+    b2 = b2[n:] // this looks like pointer arithmetic? Turns out it's slice!
   }
   
   trail := make([]byte, 2)
