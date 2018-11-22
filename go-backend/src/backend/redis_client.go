@@ -151,6 +151,42 @@ func readInt(r *bufio.Reader) (Resp, error) {
   return Resp{typ: Int, val: i}, nil
 }
 
+func readBulkStr(r *bufio.Reader) (Resp, error) {
+  b, err := r.ReadBytes(delimEnd)
+  if err!= nil {
+    return Resp{}, err
+  }
+  
+  size, err := strconv.ParseInt(string(b[1:len(b)-2]), 10, 64)
+  if err != nil {
+    return Resp{}, errParse
+  }
+  if size < 0 {
+    return Resp{typ: Nil}, nil
+  }
+  
+  total := make([]byte, size)
+  b2 := total // This is by reference, hence why we see no sign of total below
+  var n int
+  for len(b2) > 0 {
+    n, err = r.Read(b2)
+    if err != nil {
+      return Resp{}, err
+    }
+    b2 = b2[n:] // this looks like pointer arithmetic?
+  }
+  
+  trail := make([]byte, 2)
+  for i := 0; i<2; i++ {
+    c, err := r.ReadByte()
+    if err != nil {
+      return Resp{}, err
+    }
+    trail[i] = c
+  }
+  return Resp{typ: BulkStr, val: total}, nil
+}
+
 func readArray(r *bufio.Reader) (Resp, error) {
   b, err := r.ReadBytes(delimEnd)
   if err != nil {
@@ -158,10 +194,6 @@ func readArray(r *bufio.Reader) (Resp, error) {
   }
   
   
-  return Resp{}, nil
-}
-
-func readBulkStr(r *bufio.Reader) (Resp, error) {
   return Resp{}, nil
 }
 
