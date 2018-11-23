@@ -192,9 +192,24 @@ func readArray(r *bufio.Reader) (Resp, error) {
   if err != nil {
     return Resp{}, nil
   }
+  size, err := strconv.ParseInt(string(b[1:len(b)-2]), 10, 64)
+  if err != nil {
+    return Resp{}, errParse
+  }
+  if size<0 {
+    return Resp{typ: Nil}, nil
+  }
   
+  arr := make([]Resp, size)
+  for i := range arr { // this is for index, ignoring second variable that is the value
+    m, err :=bufioReadResp(r)
+    if err != nil {
+      return Resp{}, err
+    }
+    arr [i] = m
+  }
   
-  return Resp{}, nil
+  return Resp{typ: Array, val: arr}, nil
 }
 
 func format(v interface{}, forceString bool) Resp {
