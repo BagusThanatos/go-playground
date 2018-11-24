@@ -65,21 +65,25 @@ type Resp struct {
 	Err error
 }
 
-func NewResp(v interface{}) *Resp { //This too, need more context
+func NewResp(v interface{}) *Resp { //This too, need more context, let's hope that go inline these kind of functions
   r := format(v, false) 
   return &r
 }
 
 func NewRespSimple(s string) *Resp {
-  return nil //See implementation on the mentioned repo
+  return &Resp{typ: SimpleStr, val: []byte(s)}
 }
 
 func NewRespFlattenedString(v interface{}) *Resp {
-  return nil //See implementation on the mentioned repo
+  fv := flatten(v)
+  r := format(fv, true)
+  return &r
 }
 
 func NewRespIOErr(err error) *Resp {
-  return nil //See implementation on the mentioned repo
+  r := NewResp(err)
+  r.typ = IOErr
+  return r
 }
 
 type RespReader struct {
@@ -214,4 +218,8 @@ func readArray(r *bufio.Reader) (Resp, error) {
 
 func format(v interface{}, forceString bool) Resp {
   return Resp{}
+}
+
+func flatten(v interface{}) interface{} {
+  return v
 }
