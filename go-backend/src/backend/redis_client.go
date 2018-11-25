@@ -216,6 +216,29 @@ func readArray(r *bufio.Reader) (Resp, error) {
   return Resp{typ: Array, val: arr}, nil
 }
 
+func (r *Resp) IsType(t RespType) bool {
+  return r.typ & t >0 // & is still bitwise in Go, separating these with space provide more clarity, for me a least
+}
+
+func (r *Resp) WriteTo(w io.Writer) (int64, error) {
+  if r.typ == SimpleStr {
+    s := r.val.([] byte) // val is an interface so this is possible
+    b := append(make([]byte, 0, len(s)+3), simpleStrPrefix...)
+    b = append(b, s...)
+    b = append(b, delim...)
+    written, err := w.Write(b)
+    return int64(written), err
+  }
+  
+  return writeTo(w, nil, r.val, false, false)
+}
+
+// A dummy, just because it's being used above, should be replaced soon
+func writeTo(w io.Writer, n interface{}, v interface{}, b bool, b2 bool) (int64, error) {
+  return 0, nil
+}
+
+
 func format(v interface{}, forceString bool) Resp {
   return Resp{}
 }
