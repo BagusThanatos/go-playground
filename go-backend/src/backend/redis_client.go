@@ -233,6 +233,57 @@ func (r *Resp) WriteTo(w io.Writer) (int64, error) {
   return writeTo(w, nil, r.val, false, false)
 }
 
+func (r *Resp) Bytes() ([]byte, error) {
+  if r.Err != nil {
+    return nil, r.Err
+  }
+  
+  if r.IsType(Nil) {
+    return nil, ErrRespNil
+  } else if !r.IsType(Str) {
+    return nil, errBadType
+  }
+  
+  if b, ok := r.val.([]byte); ok {
+    return b, nil
+  }
+  return nil, errNotStr
+}
+
+func (r *Resp) Str() (string, error) {
+  b, err := r.Bytes()
+  if err != nil {
+    return "", err
+  }
+  
+  return string(b), nil
+}
+
+func(r *Resp) Int64() (int64, error) {
+  if r.Err != nil {
+    return 0, r.Err
+  }
+  
+  if r.IsType(Nil) {
+    return 0, ErrRespNil
+  } else if i, ok := r.val.(int64); ok {
+    return i, nil
+  }
+  
+  if s, err := r.Str(); err == nil {
+    i, err := strconv.ParseInt(s, 10, 64)
+    if err != nil {
+      return 0, err
+    }
+    return i, nil
+  }
+  return 0, errNotInt
+}
+
+func (r *Resp) Int() (int, error) {
+  i, err := r.Int64()
+  return int(i), err
+}
 // A dummy, just because it's being used above, should be replaced soon
 func writeTo(w io.Writer, n interface{}, v interface{}, b bool, b2 bool) (int64, error) {
   return 0, nil
