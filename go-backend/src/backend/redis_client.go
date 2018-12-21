@@ -284,6 +284,20 @@ func (r *Resp) Int() (int, error) {
   i, err := r.Int64()
   return int(i), err
 }
+
+func (r *Resp) Float64() (float64, error) {
+  if r.Err != nil {
+    return 0, r.Err
+  }
+  if b, ok := r.val.([]byte); ok {
+    f, err := strconv.ParseFloat(string(b), 64)
+    if err != nil {
+      return 0, err
+    }
+    return f, nil
+  }
+  return 0, errNotStr
+}
 // A dummy, just because it's being used above, should be replaced soon
 func writeTo(w io.Writer, n interface{}, v interface{}, b bool, b2 bool) (int64, error) {
   return 0, nil
