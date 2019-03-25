@@ -1,3 +1,5 @@
+// +build ignore
+
 // I rewrote https://github.com/mediocregopher/radix.v2/blob/master/redis/client.go here just for educational/exercise purposes. You could checkout their repository for a better redis client.
 
 package backend
@@ -29,12 +31,12 @@ type RespType int // Basically saying what kind of response we get
 const (
   SimpleStr RespType = 1 << iota  // 00000001
   BulkStr                         // 00000010
-  IOErr // IO related errors         00000100 , ... 
+  IOErr // IO related errors         00000100 , ...
   AppErr // Redis specific errros
   Int
   Array
   Nil
-  
+
   Str = SimpleStr | BulkStr
   Err = IOErr | AppErr
 )
@@ -54,7 +56,7 @@ var (
   errNotStr = errors.New("could not convert to string")
   errNotInt = errors.New("could not convert to int")
   errNotArray = errors.New("could not convert to array")
-  
+
   ErrRespNil = errors.New("response is nil")
 )
 
@@ -66,7 +68,7 @@ type Resp struct {
 }
 
 func NewResp(v interface{}) *Resp { //This too, need more context, let's hope that go inline these kind of functions
-  r := format(v, false) 
+  r := format(v, false)
   return &r
 }
 
@@ -126,7 +128,7 @@ func bufioReadResp(r *bufio.Reader) (Resp, error) {
 func readSimpleStr(r *bufio.Reader) (Resp, error) {
   b, err := r.ReadBytes(delimEnd)
   if err != nil {
-    return Resp{}, err 
+    return Resp{}, err
   }
   return Resp{typ: SimpleStr, val: b[1 : len(b)-2]}, nil
 }
@@ -137,7 +139,7 @@ func readError(r *bufio.Reader) (Resp, error) {
     return Resp{}, err
   }
   err = errors.New(string(b[1 : len(b)-2]))
-  
+
   return Resp{typ: AppErr, val: err, Err: err}, nil
 }
 
@@ -146,12 +148,12 @@ func readInt(r *bufio.Reader) (Resp, error) {
   if err != nil {
     return Resp{}, nil
   }
-  
+
   i, err := strconv.ParseInt(string(b[1:len(b)-2]), 10, 64)
   if err != nil {
     return Resp{}, errParse
   }
-  
+
   return Resp{typ: Int, val: i}, nil
 }
 
@@ -160,7 +162,7 @@ func readBulkStr(r *bufio.Reader) (Resp, error) {
   if err!= nil {
     return Resp{}, err
   }
-  
+
   size, err := strconv.ParseInt(string(b[1:len(b)-2]), 10, 64)
   if err != nil {
     return Resp{}, errParse
@@ -168,7 +170,7 @@ func readBulkStr(r *bufio.Reader) (Resp, error) {
   if size < 0 {
     return Resp{typ: Nil}, nil
   }
-  
+
   total := make([]byte, size)
   b2 := total // This is by reference, hence why we see no sign of total below
   var n int
@@ -179,7 +181,7 @@ func readBulkStr(r *bufio.Reader) (Resp, error) {
     }
     b2 = b2[n:] // this looks like pointer arithmetic? Turns out it's slice!
   }
-  
+
   trail := make([]byte, 2)
   for i := 0; i<2; i++ {
     c, err := r.ReadByte()
@@ -203,7 +205,7 @@ func readArray(r *bufio.Reader) (Resp, error) {
   if size<0 {
     return Resp{typ: Nil}, nil
   }
-  
+
   arr := make([]Resp, size)
   for i := range arr { // this is for index, ignoring second variable that is the value
     m, err :=bufioReadResp(r)
@@ -212,7 +214,7 @@ func readArray(r *bufio.Reader) (Resp, error) {
     }
     arr [i] = m
   }
-  
+
   return Resp{typ: Array, val: arr}, nil
 }
 
@@ -229,7 +231,7 @@ func (r *Resp) WriteTo(w io.Writer) (int64, error) {
     written, err := w.Write(b)
     return int64(written), err
   }
-  
+
   return writeTo(w, nil, r.val, false, false)
 }
 
@@ -237,13 +239,13 @@ func (r *Resp) Bytes() ([]byte, error) {
   if r.Err != nil {
     return nil, r.Err
   }
-  
+
   if r.IsType(Nil) {
     return nil, ErrRespNil
   } else if !r.IsType(Str) {
     return nil, errBadType
   }
-  
+
   if b, ok := r.val.([]byte); ok {
     return b, nil
   }
@@ -255,7 +257,7 @@ func (r *Resp) Str() (string, error) {
   if err != nil {
     return "", err
   }
-  
+
   return string(b), nil
 }
 
@@ -263,13 +265,13 @@ func(r *Resp) Int64() (int64, error) {
   if r.Err != nil {
     return 0, r.Err
   }
-  
+
   if r.IsType(Nil) {
     return 0, ErrRespNil
   } else if i, ok := r.val.(int64); ok {
     return i, nil
   }
-  
+
   if s, err := r.Str(); err == nil {
     i, err := strconv.ParseInt(s, 10, 64)
     if err != nil {
