@@ -1,4 +1,4 @@
-package backend
+package main
 
 import (
 	"fmt"
@@ -7,6 +7,9 @@ import (
 	"flag"
 	"encoding/json"
 	"io/ioutil"
+  "os"
+  "database/sql"
+  _ "github.com/lib/pq"
 )
 
 type Data struct {
@@ -19,6 +22,28 @@ type RequestBody struct {
 
 func Ping(w http.ResponseWriter, r *http.Request) {}
 
+func Postgres(w  http.ResponseWriter, r *http.Request) {
+  postgresUrl := os.Getenv("POSTGRES_URL")
+  db, err := sql.Open(postgresUrl)
+  if err != nil {
+    w.WriteHeader(http.StatusInternalServerError)
+    return
+  }
+
+  query := os.Getenv("QUERY")
+  rows, err := db.Query(query)
+  if err != nil {
+    w.WriteHeader(http.StatusInternalServerError)
+    return
+  }
+
+  defer rows.Close()
+
+  for rows.Next(){
+
+  }
+}
+
 func HelloName(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -27,12 +52,12 @@ func HelloName(w http.ResponseWriter, r *http.Request) {
 
 	// Parse body
 	body, err := ioutil.ReadAll(r.Body)
-	defer r.Body.Close()	
+	defer r.Body.Close()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	
+
 	requestBody := RequestBody{}
 	err = json.Unmarshal(body, &requestBody)
 	if err != nil {
@@ -50,7 +75,7 @@ func HelloName(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(payload)
