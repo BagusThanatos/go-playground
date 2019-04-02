@@ -23,8 +23,9 @@ type RequestBody struct {
 func Ping(w http.ResponseWriter, r *http.Request) {}
 
 func Postgres(w  http.ResponseWriter, r *http.Request) {
+  // Should always watch for sslmode
   postgresUrl := os.Getenv("POSTGRES_URL")
-  db, err := sql.Open(postgresUrl)
+  db, err := sql.Open("postgres", postgresUrl)
   if err != nil {
     w.WriteHeader(http.StatusInternalServerError)
     return
@@ -34,14 +35,33 @@ func Postgres(w  http.ResponseWriter, r *http.Request) {
   rows, err := db.Query(query)
   if err != nil {
     w.WriteHeader(http.StatusInternalServerError)
+    fmt.Print(err)
     return
   }
 
   defer rows.Close()
 
   for rows.Next(){
-
+    var (
+      video_id int
+      total_plays int
+    )
+    if err := rows.Scan(&video_id, &total_plays); err != nil {
+      w.WriteHeader(http.StatusInternalServerError)
+      return
+    }
+    fmt.Printf("Data: %s %s\n", video_id, total_plays)
   }
+  data := Data{}
+  data.Title = "SUCCESS"
+  payload, err:= json.Marshal(data)
+  if err != nil {
+    w.WriteHeader(http.StatusInternalServerError)
+    return
+  }
+  w.Header().Set("Content-Type", "application/json")
+  w.WriteHeader(http.StatusOK)
+  w.Write(payload)
 }
 
 func HelloName(w http.ResponseWriter, r *http.Request) {
@@ -102,6 +122,7 @@ func main() {
 	http.HandleFunc("/ping.html", Ping)
 	http.HandleFunc("/hello", Hello)
 	http.HandleFunc("/helloname", HelloName)
+  http.HandleFunc("/postgres", Postgres)
 	port := "8080"
 	if len(args) > 0 {
 		port = args[0]
