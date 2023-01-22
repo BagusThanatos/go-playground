@@ -24,6 +24,7 @@ func loop() {
 
   layoutWin1 := g.Layout{
     g.Label("Hello world from giu"),
+    g.Labelf("Window 1 has focus: %t", window1.HasFocus()),
     g.Row(
       g.Button("Click Me").OnClick(onClickMe),
       g.Button("Do Something").OnClick(doSomething),
@@ -37,6 +38,7 @@ func loop() {
 
   layoutWin2 := g.Layout{
     g.Label("Second window here"),
+    g.Labelf("Window 2 has focus: %t", window2.HasFocus()),
   }
 
   window1.Layout(layoutWin1)
