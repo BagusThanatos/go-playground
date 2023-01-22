@@ -19,7 +19,10 @@ func popMessageBox()  {
 }
 
 func loop() {
-  g.SingleWindow().Layout(
+  window1 := g.Window("First Window")
+  window2 := g.Window("Second window")
+
+  layoutWin1 := g.Layout{
     g.Label("Hello world from giu"),
     g.Row(
       g.Button("Click Me").OnClick(onClickMe),
@@ -30,7 +33,14 @@ func loop() {
     g.Button("show message box inline").OnClick(func(){
       g.Msgbox("messge box inline", "This is using anonymous function")
     }),
-  )
+  }
+
+  layoutWin2 := g.Layout{
+    g.Label("Second window here"),
+  }
+
+  window1.Layout(layoutWin1)
+  window2.Layout(layoutWin2)
 }
 
 func main() {
